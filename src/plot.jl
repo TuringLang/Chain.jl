@@ -4,12 +4,14 @@
 @shorthands pooleddensity
 @shorthands traceplot
 @shorthands corner
+@shorthands violinplot
 
 struct _TracePlot; c; val; end
 struct _MeanPlot; c; val;  end
 struct _DensityPlot; c; val;  end
 struct _HistogramPlot; c; val;  end
 struct _AutocorPlot; lags; val;  end
+struct _ViolinPlot; parameters; val; end
 
 # define alias functions for old syntax
 const translationdict = Dict(
@@ -18,7 +20,8 @@ const translationdict = Dict(
                         :density => _DensityPlot,
                         :histogram => _HistogramPlot,
                         :autocorplot => _AutocorPlot,
-                        :pooleddensity => _DensityPlot
+                        :pooleddensity => _DensityPlot,
+                        :violinplot => _ViolinPlot
                       )
 
 const supportedplots = push!(collect(keys(translationdict)), :mixeddensity, :corner)
@@ -183,4 +186,46 @@ end
     size --> (600, 600)
     ar = collect(Array(corner.c.value[:, corner.parameters,i]) for i in chains(corner.c))
     RecipesBase.recipetype(:cornerplot, vcat(ar...))
+end
+
+@recipe function f(
+    chains::Chains;
+    sections = chains.name_map[:parameters],
+    combined = true
+)
+
+    st = get(plotattributes, :seriestype, :traceplot)
+    if st == :violinplot
+        if combined
+            parameters = string.(sections)
+            val = Array(chains)[:, ]
+            _ViolinPlot(parameters, val)
+
+        elseif combined == false
+            data = Array(chains, append_chains = false)
+            parameters = vec(["param $(sections[i]).Chain $j"
+                        for i in 1:length(sections),
+                            j in 1:length(data)])
+            val_vec = vec([data[j][:,i] for i in 1:length(sections), j in 1:length(data)])
+            n_iter = length(val_vec[1])
+            n_chains = length(val_vec)
+            val = zeros(Float64, n_iter, n_chains)
+            for i in 1:n_iter
+                for j in 1:n_chains
+                    val[i,j] = val_vec[j][i]
+                end
+            end
+            _ViolinPlot(parameters, val[:,])
+        else
+            error("Symbol names are interpreted as parameter names, only compatible with ",
+              "`colordim = :chain`")
+        end
+    end
+end
+
+@recipe function f(p::_ViolinPlot)
+    seriestype := :violin
+    xaxis --> "Parameter"
+    p.parameters, p.val
+    #[collect(skipmissing(p.val[:,k])) for k in 1:size(p.val)]
 end
