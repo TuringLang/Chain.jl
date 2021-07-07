@@ -171,6 +171,15 @@ function describe(
     return dfs
 end
 
+function Base.show(io::IO, mime::MIME"text/plain", cs::Vector{ChainDataFrame})
+
+    # Show summary stats.
+    for c in cs
+        println(io)
+        show(io, mime, c)
+    end
+end
+
 function _hpd(x::AbstractVector{<:Real}; alpha::Real=0.05)
     n = length(x)
     m = max(1, ceil(Int, alpha * n))
