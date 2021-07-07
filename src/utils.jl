@@ -196,3 +196,17 @@ function concretize(x::Chains)
         return Chains(concretize(value), x.logevidence, x.name_map, x.info)
     end
 end
+
+function isstrictlyincreasing(x::AbstractVector{Int})
+    return isempty(x) || _isstrictlyincreasing_nonempty(x)
+end
+
+_isstrictlyincreasing_nonempty(x::AbstractRange{Int}) = step(x) > 0
+function _isstrictlyincreasing_nonempty(x::AbstractVector{Int})
+    i = first(x)
+    for j in Iterators.drop(x, 1)
+        j > i || return false
+        i = j
+    end
+    return true
+end

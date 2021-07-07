@@ -22,5 +22,5 @@ function readcoda(output::AbstractString, index::AbstractString)
     value[:, i] = out[inds, 2]
   end
 
-  Chains(value, start=first(window), thin=step(window), names=names)
+  Chains(value; iterations=window, names=names)
 end

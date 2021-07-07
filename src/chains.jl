@@ -31,9 +31,22 @@ function Chains(
     name_map = (parameters = parameter_names,);
     start::Int = 1,
     thin::Int = 1,
+    iterations::AbstractVector{Int} = range(start; step=thin, length=size(val, 1)),
     evidence = missing,
     info::NamedTuple = NamedTuple()
 )
+    # Check that iteration numbers are reasonable
+    if length(iterations) != size(val, 1)
+        error("length of `iterations` (", length(iterations),
+              ") is not equal to the number of iterations (", size(val, 1), ")")
+    end
+    if !isempty(iterations) && first(iterations) < 1
+        error("iteration numbers must be positive integers")
+    end
+    if !isstrictlyincreasing(iterations)
+        error("iteration numbers must be strictly increasing")
+    end
+
     # Make sure that we have a `:parameters` index and # Copying can avoid state mutation.
     _name_map = initnamemap(name_map)
 
@@ -58,7 +71,7 @@ function Chains(
 
     # Construct the AxisArray.
     arr = AxisArray(val;
-                    iter = range(start, step=thin, length=size(val, 1)),
+                    iter = iterations,
                     var = parameter_names,
                     chain = 1:size(val, 3))
 
@@ -437,17 +450,21 @@ Return the range of iteration indices of the `chains`.
 Base.range(chains::Chains) = chains.value[Axis{:iter}].val
 
 """
-    setrange(chains::Chains, range)
+    setrange(chains::Chains, range::AbstractVector{Int})
 
 Generate a new chain from `chains` with iterations indexed by `range`.
 
 The new chain and `chains` share the same data in memory.
 """
-function setrange(chains::Chains, range::AbstractRange{<:Integer})
+function setrange(chains::Chains, range::AbstractVector{Int})
     if length(chains) != length(range)
         error("length of `range` (", length(range),
               ") is not equal to the number of iterations (", length(chains), ")")
     end
+    if !isempty(range) && first(range) < 1
+        error("iteration numbers must be positive integers")
+    end
+    isstrictlyincreasing(range) || error("iteration numbers must be strictly increasing")
 
     value = AxisArray(chains.value.data;
                       iter = range, var = names(chains), chain = MCMCChains.chains(chains))
@@ -567,8 +584,7 @@ function header(c::Chains; section=missing)
     # Return header.
     return string(
         ismissing(c.logevidence) ? "" : "Log evidence      = $(c.logevidence)\n",
-        "Iterations        = $(first(c)):$(last(c))\n",
-        "Thinning interval = $(step(c))\n",
+        "Iterations        = $(range(c))\n",
         "Number of chains  = $(size(c, 3))\n",
         "Samples per chain = $(length(range(c)))\n",
         ismissing(wall) ? "" : "Wall duration     = $(round(wall, digits=2)) seconds\n",
@@ -718,8 +734,11 @@ _cat(dim::Int, cs::Chains...) = _cat(Val(dim), cs...)
 
 function _cat(::Val{1}, c1::Chains, args::Chains...)
     # check inputs
-    thin = step(c1)
-    all(c -> step(c) == thin, args) || throw(ArgumentError("chain thinning differs"))
+    lastiter = last(c1)
+    for c in args
+        first(c) > lastiter || throw(ArgumentError("iterations have to be sorted"))
+        lastiter = last(c)
+    end
     nms = names(c1)
     all(c -> names(c) == nms, args) || throw(ArgumentError("chain names differ"))
     chns = chains(c1)
@@ -728,7 +747,7 @@ function _cat(::Val{1}, c1::Chains, args::Chains...)
     # concatenate all chains
     data = mapreduce(c -> c.value.data, vcat, args; init = c1.value.data)
     value = AxisArray(data;
-                      iter = range(first(c1); length = size(data, 1), step = thin),
+                      iter = mapreduce(range, vcat, args; init=range(c1)),
                       var = nms,
                       chain = chns)
 

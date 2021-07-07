@@ -18,12 +18,11 @@ verbosity level.
 
 # Example
 ```jldoctest rstar; output = false, filter = r".*"s
-using MLJModels
+using MLJBase, MLJXGBoostInterface
 
-XGBoost = @load XGBoostClassifier verbosity=0
 chn = Chains(fill(4, 100, 2, 3))
 
-Rs = rstar(XGBoost(), chn; iterations=20)
+Rs = rstar(XGBoostClassifier(), chn; iterations=20)
 R = round(mean(Rs); digits=0)
 
 # output

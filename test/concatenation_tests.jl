@@ -46,58 +46,60 @@ end
     chn = Chains(rand(10, 5, 2), ["a", "b", "c", "d", "e"], Dict(:internal => ["d", "e"]))
     chn1 = Chains(rand(5, 5, 2), ["a", "b", "c", "d", "e"], Dict(:internal => ["a", "b"]))
 
-    # incorrect thinning
-    @test_throws ArgumentError vcat(chn, Chains(rand(2, 5, 2); thin = 2))
+    # incorrect iterations
+    @test_throws ArgumentError vcat(chn, Chains(rand(2, 5, 2)))
 
     # incorrect names
-    @test_throws ArgumentError vcat(chn, Chains(rand(10, 5, 2), ["a", "b", "c", "d", "f"]))
+    @test_throws ArgumentError vcat(chn, Chains(rand(10, 5, 2), ["a", "b", "c", "d", "f"]; start=11))
 
     # incorrect number of chains
-    @test_throws ArgumentError vcat(chn, Chains(rand(10, 5, 3), ["a", "b", "c", "d", "e"]))
+    @test_throws ArgumentError vcat(chn, Chains(rand(10, 5, 3), ["a", "b", "c", "d", "e"]; start=11))
 
     # concate the same chain
-    chn2 = vcat(chn, chn)
+    chn_shifted = setrange(chn, 11:20)
+    chn2 = vcat(chn, chn_shifted)
     @test chn2.value.data == vcat(chn.value.data, chn.value.data)
     @test size(chn2) == (20, 5, 2)
     @test names(chn2) == names(chn)
     @test range(chn2) == 1:20
     @test chn2.name_map == (parameters = [:a, :b, :c], internal = [:d, :e])
-    
-    chn2a = cat(chn, chn)
+
+    chn2a = cat(chn, chn_shifted)
     @test chn2a.value == chn2.value
     @test chn2a.name_map == chn2.name_map
     @test chn2a.info == chn2.info
 
-    chn2b = cat(chn, chn; dims = Val(1))
+    chn2b = cat(chn, chn_shifted; dims = Val(1))
     @test chn2b.value == chn2.value
     @test chn2b.name_map == chn2.name_map
     @test chn2b.info == chn2.info
 
-    chn2c = cat(chn, chn; dims = 1)
+    chn2c = cat(chn, chn_shifted; dims = 1)
     @test chn2c.value == chn2.value
     @test chn2c.name_map == chn2.name_map
     @test chn2c.info == chn2.info
 
     # concatenate a different chain
-    chn3 = vcat(chn, chn1)
+    chn1_shifted = setrange(chn1, 11:15)
+    chn3 = vcat(chn, chn1_shifted)
     @test chn3.value.data == vcat(chn.value.data, chn1.value.data)
     @test size(chn3) == (15, 5, 2)
     @test names(chn3) == names(chn)
     @test range(chn3) == 1:15
     # just take the name map of first argument
     @test chn3.name_map == (parameters = [:a, :b, :c], internal = [:d, :e])
-    
-    chn3a = cat(chn, chn1)
+
+    chn3a = cat(chn, chn1_shifted)
     @test chn3a.value == chn3.value
     @test chn3a.name_map == chn3.name_map
     @test chn3a.info == chn3.info
 
-    chn3b = cat(chn, chn1; dims = Val(1))
+    chn3b = cat(chn, chn1_shifted; dims = Val(1))
     @test chn3b.value == chn3.value
     @test chn3b.name_map == chn3.name_map
     @test chn3b.info == chn3.info
 
-    chn3c = cat(chn, chn1; dims = 1)
+    chn3c = cat(chn, chn1_shifted; dims = 1)
     @test chn3c.value == chn3.value
     @test chn3c.name_map == chn3.name_map
     @test chn3c.info == chn3.info
