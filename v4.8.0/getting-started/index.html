@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Getting started · MCMCChains.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">MCMCChains.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">MCMCChains</a></li><li class="is-active"><a class="tocitem" href>Getting started</a><ul class="internal"><li><a class="tocitem" href="#Chains-type"><span>Chains type</span></a></li><li><a class="tocitem" href="#Indexing-and-parameter-Names"><span>Indexing and parameter Names</span></a></li><li><a class="tocitem" href="#Rename-Parameters"><span>Rename Parameters</span></a></li><li><a class="tocitem" href="#Sections"><span>Sections</span></a></li><li><a class="tocitem" href="#Groups-of-parameters"><span>Groups of parameters</span></a></li><li><a class="tocitem" href="#The-get-Function"><span>The <code>get</code> Function</span></a></li><li><a class="tocitem" href="#Saving-and-Loading-Chains"><span>Saving and Loading Chains</span></a></li><li><a class="tocitem" href="#Exporting-Chains"><span>Exporting Chains</span></a></li><li><a class="tocitem" href="#Sampling-Chains"><span>Sampling Chains</span></a></li></ul></li><li><span class="tocitem">Plotting</span><ul><li><a class="tocitem" href="../statsplots/">StatsPlots.jl</a></li><li><a class="tocitem" href="../gadfly/">Gadfly.jl</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../chains/">Chains</a></li><li><a class="tocitem" href="../diagnostics/">Diagnostics</a></li><li><a class="tocitem" href="../stats/">Posterior statistics</a></li><li><a class="tocitem" href="../modelstats/">Model selection</a></li><li><a class="tocitem" href="../summarize/">Summarize</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Getting started</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Getting started</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/TuringLang/MCMCChains.jl/blob/master/docs/src/getting-started.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Getting-started"><a class="docs-heading-anchor" href="#Getting-started">Getting started</a><a id="Getting-started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-started" title="Permalink"></a></h1><h2 id="Chains-type"><a class="docs-heading-anchor" href="#Chains-type">Chains type</a><a id="Chains-type-1"></a><a class="docs-heading-anchor-permalink" href="#Chains-type" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="MCMCChains.Chains" href="#MCMCChains.Chains"><code>MCMCChains.Chains</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia">Chains</code></pre><p>Parameters:</p><ul><li><code>value</code>: An <code>AxisArray</code> object with axes <code>iter</code> × <code>var</code> × <code>chains</code></li><li><code>logevidence</code> : A field containing the logevidence.</li><li><code>name_map</code> : A <code>NamedTuple</code> mapping each variable to a section.</li><li><code>info</code> : A <code>NamedTuple</code> containing miscellaneous information relevant to the chain.</li></ul><p>The <code>info</code> field can be set using <code>setinfo(c::Chains, n::NamedTuple)</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/MCMCChains.jl/blob/2fbcb3df463957052d596edf68f2bd3949de7a7d/src/MCMCChains.jl#L43-L53">source</a></section></article><h2 id="Indexing-and-parameter-Names"><a class="docs-heading-anchor" href="#Indexing-and-parameter-Names">Indexing and parameter Names</a><a id="Indexing-and-parameter-Names-1"></a><a class="docs-heading-anchor-permalink" href="#Indexing-and-parameter-Names" title="Permalink"></a></h2><p>Chains can be constructed with parameter names. For example, to create a chains object with</p><ul><li>500 samples,</li><li>2 parameters (named <code>a</code> and <code>b</code>)</li><li>3 chains</li></ul><p>use</p><pre><code class="language-julia">val = rand(500, 2, 3)
+chn = Chains(val, [:a, :b])</code></pre><pre class="documenter-example-output">Chains MCMC chain (500×2×3 Array{Float64, 3}):
+
+Iterations        = 1:500
+Thinning interval = 1
+Chains            = 1, 2, 3
+Samples per chain = 500
+parameters        = a, b
+
+Summary Statistics
+  parameters      mean       std   naive_se      mcse         ess      rhat
+      Symbol   Float64   Float64    Float64   Float64     Float64   Float64
+
+           a    0.4962    0.2906     0.0075    0.0065   1235.9560    0.9994
+           b    0.4932    0.2883     0.0074    0.0062   1409.4492    0.9989
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+           a    0.0302    0.2356    0.4861    0.7590    0.9729
+           b    0.0221    0.2452    0.4831    0.7434    0.9728
+</pre><p>By default, parameters will be given the name <code>param_i</code>, where <code>i</code> is the parameter number:</p><pre><code class="language-julia">chn = Chains(rand(100, 2, 2))</code></pre><pre class="documenter-example-output">Chains MCMC chain (100×2×2 Array{Float64, 3}):
+
+Iterations        = 1:100
+Thinning interval = 1
+Chains            = 1, 2
+Samples per chain = 100
+parameters        = param_1, param_2
+
+Summary Statistics
+  parameters      mean       std   naive_se      mcse        ess      rhat
+      Symbol   Float64   Float64    Float64   Float64    Float64   Float64
+
+     param_1    0.5009    0.2875     0.0203    0.0063   222.4027    0.9923
+     param_2    0.5089    0.2832     0.0200    0.0190   224.7700    0.9967
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+     param_1    0.0151    0.2510    0.5056    0.7440    0.9477
+     param_2    0.0352    0.2769    0.5048    0.7558    0.9515
+</pre><p>We can set and get indexes for parameter 2:</p><pre><code class="language-julia">chn_param2 = chn[1:5,2,:];</code></pre><pre class="documenter-example-output">2-dimensional AxisArray{Float64,2,...} with axes:
+    :iter, 1:1:5
+    :chain, 1:2
+And data, a 5×2 Matrix{Float64}:
+ 0.0167485  0.601748
+ 0.945817   0.84651
+ 0.84343    0.371065
+ 0.163738   0.195013
+ 0.416416   0.866167</pre><pre><code class="language-julia">chn[:,2,:] = fill(4, 100, 1, 2)
+chn</code></pre><pre class="documenter-example-output">Chains MCMC chain (100×2×2 Array{Float64, 3}):
+
+Iterations        = 1:100
+Thinning interval = 1
+Chains            = 1, 2
+Samples per chain = 100
+parameters        = param_1, param_2
+
+Summary Statistics
+  parameters      mean       std   naive_se      mcse        ess      rhat
+      Symbol   Float64   Float64    Float64   Float64    Float64   Float64
+
+     param_1    0.5009    0.2875     0.0203    0.0063   222.4027    0.9923
+     param_2    4.0000    0.0000     0.0000    0.0000        NaN       NaN
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+     param_1    0.0151    0.2510    0.5056    0.7440    0.9477
+     param_2    4.0000    4.0000    4.0000    4.0000    4.0000
+</pre><h2 id="Rename-Parameters"><a class="docs-heading-anchor" href="#Rename-Parameters">Rename Parameters</a><a id="Rename-Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Rename-Parameters" title="Permalink"></a></h2><p>Parameter names can be changed with the function <code>replacenames</code>:</p><article class="docstring"><header><a class="docstring-binding" id="MCMCChains.replacenames" href="#MCMCChains.replacenames"><code>MCMCChains.replacenames</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">replacenames(chains::Chains, dict::AbstractDict)</code></pre><p>Replace parameter names by creating a new <code>Chains</code> object that shares the same underlying data.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; chn = Chains(rand(100, 2, 2), [&quot;one&quot;, &quot;two&quot;]);
+
+julia&gt; chn2 = replacenames(chn, &quot;one&quot; =&gt; &quot;A&quot;);
+
+julia&gt; names(chn2)
+2-element Vector{Symbol}:
+ :A
+ :two
+
+julia&gt; chn3 = replacenames(chn2, Dict(&quot;A&quot; =&gt; &quot;one&quot;, &quot;two&quot; =&gt; &quot;B&quot;));
+
+julia&gt; names(chn3) 
+2-element Vector{Symbol}:
+ :one
+ :B</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/MCMCChains.jl/blob/2fbcb3df463957052d596edf68f2bd3949de7a7d/src/chains.jl#L684-L707">source</a></section></article><h2 id="Sections"><a class="docs-heading-anchor" href="#Sections">Sections</a><a id="Sections-1"></a><a class="docs-heading-anchor-permalink" href="#Sections" title="Permalink"></a></h2><p>Chains parameters are sorted into sections that represent groups of parameters, see  <a href="../chains/#MCMCChains.group-Tuple{Chains, Union{String, Symbol}}"><code>MCMCChains.group</code></a>. By default, every chain contains a <code>parameters</code> section, to which all unassigned parameters are assigned to. Chains can be assigned a named map during construction:</p><pre><code class="language-julia">chn = Chains(rand(100, 4, 2), [:a, :b, :c, :d])</code></pre><pre class="documenter-example-output">Chains MCMC chain (100×4×2 Array{Float64, 3}):
+
+Iterations        = 1:100
+Thinning interval = 1
+Chains            = 1, 2
+Samples per chain = 100
+parameters        = a, b, c, d
+
+Summary Statistics
+  parameters      mean       std   naive_se      mcse        ess      rhat
+      Symbol   Float64   Float64    Float64   Float64    Float64   Float64
+
+           a    0.5072    0.2901     0.0205    0.0084   208.1973    0.9918
+           b    0.5405    0.2757     0.0195    0.0077   191.8219    0.9928
+           c    0.4861    0.2925     0.0207    0.0015   202.8022    0.9978
+           d    0.5011    0.2662     0.0188    0.0240   241.3182    0.9989
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+           a    0.0296    0.2669    0.5043    0.7608    0.9777
+           b    0.0310    0.3093    0.5425    0.7917    0.9884
+           c    0.0153    0.2115    0.5185    0.7421    0.9679
+           d    0.0397    0.2821    0.4925    0.7177    0.9553
+</pre><p>The <a href="../chains/#MCMCChains.set_section-Tuple{Chains, Any}"><code>MCMCChains.set_section</code></a> function returns a new <code>Chains</code> object:</p><pre><code class="language-julia">chn2 = set_section(chn, Dict(:internals =&gt; [:c, :d]))</code></pre><pre class="documenter-example-output">Chains MCMC chain (100×4×2 Array{Float64, 3}):
+
+Iterations        = 1:100
+Thinning interval = 1
+Chains            = 1, 2
+Samples per chain = 100
+parameters        = a, b
+internals         = c, d
+
+Summary Statistics
+  parameters      mean       std   naive_se      mcse        ess      rhat
+      Symbol   Float64   Float64    Float64   Float64    Float64   Float64
+
+           a    0.5072    0.2901     0.0205    0.0084   208.1973    0.9918
+           b    0.5405    0.2757     0.0195    0.0077   191.8219    0.9928
+
+Quantiles
+  parameters      2.5%     25.0%     50.0%     75.0%     97.5%
+      Symbol   Float64   Float64   Float64   Float64   Float64
+
+           a    0.0296    0.2669    0.5043    0.7608    0.9777
+           b    0.0310    0.3093    0.5425    0.7917    0.9884
+</pre><p>Note that only <code>a</code> and <code>b</code> are being shown. You can explicity retrieve an array of the summary statistics and the quantiles of the <code>:internals</code> section by calling <code>describe(chn; sections = :internals)</code>, or of all variables with <code>describe(chn; sections = nothing)</code>. Many functions such as <a href="../summarize/#MCMCChains.summarize-Tuple{Chains, Vararg{Any, N} where N}"><code>MCMCChains.summarize</code></a> or <a href="../diagnostics/#MCMCChains.gelmandiag-Tuple{AbstractArray{var&quot;#s11&quot;, 3} where var&quot;#s11&quot;&lt;:Real}"><code>MCMCChains.gelmandiag</code></a> support the <code>sections</code> keyword argument.</p><h2 id="Groups-of-parameters"><a class="docs-heading-anchor" href="#Groups-of-parameters">Groups of parameters</a><a id="Groups-of-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Groups-of-parameters" title="Permalink"></a></h2><p>You can access the names of all parameters in a <code>chain</code> that belong to the group <code>name</code> by using</p><article class="docstring"><header><a class="docstring-binding" id="MCMCChains.namesingroup" href="#MCMCChains.namesingroup"><code>MCMCChains.namesingroup</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">namesingroup(chains::Chains, sym::Union{String,Symbol})</code></pre><p>Return the names of all parameters in a chain that belong to the group <code>sym</code>.</p><p>This is based on the MCMCChains convention that parameters with names of the form <code>:sym[index]</code> belong to one group of parameters called <code>:sym</code>.</p><p>If the chain contains a parameter of name <code>:sym</code> it will be returned as well.</p><p><strong>Example</strong></p><pre><code class="language-julia-repl">julia&gt; chn = Chains(rand(100, 2, 2), [&quot;A[1]&quot;, &quot;A[2]&quot;]);
+
+julia&gt; namesingroup(chn, :A)
+2-element Vector{Symbol}:
+ Symbol(&quot;A[1]&quot;)
+ Symbol(&quot;A[2]&quot;)</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/MCMCChains.jl/blob/2fbcb3df463957052d596edf68f2bd3949de7a7d/src/chains.jl#L110-L129">source</a></section></article><h2 id="The-get-Function"><a class="docs-heading-anchor" href="#The-get-Function">The <code>get</code> Function</a><a id="The-get-Function-1"></a><a class="docs-heading-anchor-permalink" href="#The-get-Function" title="Permalink"></a></h2><p>MCMCChains also provides a <a href="../chains/#Base.get-Tuple{Chains, Symbol}"><code>get</code></a> function designed to make it easier to access parameters:</p><pre><code class="language-julia">val = rand(6, 3, 1)
+chn = Chains(val, [:a, :b, :c]);
+
+x = get(chn, :a)</code></pre><pre class="documenter-example-output">(a = [0.726892202151076; 0.7897987447542649; … ; 0.7007065543867941; 0.28230852428601994],)</pre><p>You can also access the variables via <code>getproperty</code>:</p><pre><code class="language-julia">x.a</code></pre><pre class="documenter-example-output">2-dimensional AxisArray{Float64,2,...} with axes:
+    :iter, 1:1:6
+    :chain, 1:1
+And data, a 6×1 Matrix{Float64}:
+ 0.726892202151076
+ 0.7897987447542649
+ 0.8764192497161967
+ 0.4298823940662093
+ 0.7007065543867941
+ 0.28230852428601994</pre><p><code>get</code> also accepts vectors of things to retrieve, so you can call </p><pre><code class="language-julia">x = get(chn, [:a, :b])</code></pre><pre class="documenter-example-output">(a = [0.726892202151076; 0.7897987447542649; … ; 0.7007065543867941; 0.28230852428601994],
+ b = [0.5217728481429613; 0.516762893315768; … ; 0.06530586170606023; 0.7861388159619587],)</pre><h2 id="Saving-and-Loading-Chains"><a class="docs-heading-anchor" href="#Saving-and-Loading-Chains">Saving and Loading Chains</a><a id="Saving-and-Loading-Chains-1"></a><a class="docs-heading-anchor-permalink" href="#Saving-and-Loading-Chains" title="Permalink"></a></h2><p>Like any Julia object, a <code>Chains</code> object can be saved using <code>Serialization.serialize</code> and loaded back by <code>Serialization.deserialize</code> as identical as possible. Note, however, that in general <a href="https://docs.julialang.org/en/v1/stdlib/Serialization/#Serialization-1">this process will not work if the reading and writing are done by different versions of Julia, or an instance of Julia with a different system image</a>. You might want to consider <a href="https://github.com/invenia/JLSO.jl">JLSO</a> for saving metadata such as the Julia version and the versions of all packages installed as well.</p><pre><code class="language-julia">using Serialization
+
+serialize(&quot;chain-file.jls&quot;, chn)
+chn2 = deserialize(&quot;chain-file.jls&quot;)</code></pre><h2 id="Exporting-Chains"><a class="docs-heading-anchor" href="#Exporting-Chains">Exporting Chains</a><a id="Exporting-Chains-1"></a><a class="docs-heading-anchor-permalink" href="#Exporting-Chains" title="Permalink"></a></h2><p>A few utility export functions have been provided to convert <code>Chains</code> objects to either an Array or a DataFrame:</p><pre><code class="language-julia">chn = Chains(rand(3, 2, 2), [:a, :b])
+
+Array(chn)</code></pre><pre class="documenter-example-output">6×2 Matrix{Float64}:
+ 0.0376467  0.285629
+ 0.494245   0.669787
+ 0.622376   0.442597
+ 0.962889   0.574631
+ 0.0843298  0.327158
+ 0.709288   0.362666</pre><pre><code class="language-julia">Array(chn, [:parameters])</code></pre><pre class="documenter-example-output">6×2 Matrix{Float64}:
+ 0.0376467  0.285629
+ 0.494245   0.669787
+ 0.622376   0.442597
+ 0.962889   0.574631
+ 0.0843298  0.327158
+ 0.709288   0.362666</pre><p>By default chains are appended. This can be disabled by using the <code>append_chains</code> keyword  argument:</p><pre><code class="language-julia">A = Array(chn, append_chains=false)</code></pre><pre class="documenter-example-output">2-element Vector{Matrix{Float64}}:
+ [0.03764674908160326 0.28562924993877314; 0.49424522608710353 0.6697872641396161; 0.622375581088799 0.44259717400617427]
+ [0.9628890746643262 0.5746307472028429; 0.08432978813107983 0.3271577375512067; 0.7092878338443243 0.36266551726565144]</pre><p>which will return a matrix for each chain. For example, for the second chain:</p><pre><code class="language-julia">A[2]</code></pre><pre class="documenter-example-output">3×2 Matrix{Float64}:
+ 0.962889   0.574631
+ 0.0843298  0.327158
+ 0.709288   0.362666</pre><p>Similarly, for DataFrames:</p><pre><code class="language-julia">using DataFrames
+
+DataFrame(chn)</code></pre><table class="data-frame"><thead><tr><th></th><th>iteration</th><th>chain</th><th>a</th><th>b</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64</th><th>Float64</th></tr></thead><tbody><p>6 rows × 4 columns</p><tr><th>1</th><td>1</td><td>1</td><td>0.0376467</td><td>0.285629</td></tr><tr><th>2</th><td>2</td><td>1</td><td>0.494245</td><td>0.669787</td></tr><tr><th>3</th><td>3</td><td>1</td><td>0.622376</td><td>0.442597</td></tr><tr><th>4</th><td>1</td><td>2</td><td>0.962889</td><td>0.574631</td></tr><tr><th>5</th><td>2</td><td>2</td><td>0.0843298</td><td>0.327158</td></tr><tr><th>6</th><td>3</td><td>2</td><td>0.709288</td><td>0.362666</td></tr></tbody></table><p>See also <code>?DataFrame</code> and <code>?Array</code> for more help.</p><h2 id="Sampling-Chains"><a class="docs-heading-anchor" href="#Sampling-Chains">Sampling Chains</a><a id="Sampling-Chains-1"></a><a class="docs-heading-anchor-permalink" href="#Sampling-Chains" title="Permalink"></a></h2><p>MCMCChains overloads several <code>sample</code> methods as defined in StatsBase:</p><article class="docstring"><header><a class="docstring-binding" id="StatsBase.sample-Tuple{Chains, Any}" href="#StatsBase.sample-Tuple{Chains, Any}"><code>StatsBase.sample</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">sample(chn::Chains, [wv::AbstractWeights,] n; replace=true, kwargs...)
+sample(rng::Random.AbstractRNG, chn::Chains, [wv::AbstractWeights,] n; kwargs...)</code></pre><p>Sample <code>n</code> samples from <code>chn</code>; see also <a href="#MCMCChains.subset"><code>subset</code></a>. Optionally, the samples can be weighted using <code>wv</code>. Here, <code>kwargs</code> defaults to <code>replace=true</code> and <code>ordered=false</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/MCMCChains.jl/blob/2fbcb3df463957052d596edf68f2bd3949de7a7d/src/sampling.jl#L1-L8">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="MCMCChains.subset" href="#MCMCChains.subset"><code>MCMCChains.subset</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">subset(chn::Chains, samples)</code></pre><p>Return a subset of samples.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/MCMCChains.jl/blob/2fbcb3df463957052d596edf68f2bd3949de7a7d/src/sampling.jl#L33-L37">source</a></section></article><p>See <code>?sample</code> for additional help on sampling. Alternatively, you can construct and sample from a kernel density estimator using <a href="https://github.com/JuliaStats/KernelDensity.jl">KernelDensity.jl</a>, see <a href="https://github.com/TuringLang/MCMCChains.jl/blob/master/test/sampling_tests.jl">test/sampling_tests.jl</a>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« MCMCChains</a><a class="docs-footer-nextpage" href="../statsplots/">StatsPlots.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 14 April 2021 10:18">Wednesday 14 April 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
