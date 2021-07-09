@@ -122,7 +122,7 @@ function Base.convert(::Type{Array}, cs::Array{ChainDataFrame{T},1}) where T<:Na
 end
 
 """
-    summarize(chains, funs...[; sections, func_names = [], etype = :bm])
+    summarize(chains, funs...[; sections, func_names = []])
 
 Summarize `chains` in a `ChainsDataFrame`.
 

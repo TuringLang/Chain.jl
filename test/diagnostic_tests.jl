@@ -126,11 +126,6 @@ end
 @testset "function tests" begin
     tchain = Chains(rand(niter, nparams, nchains), ["a", "b", "c"], Dict(:internals => ["c"]))
 
-    # the following tests only check if the function calls work!
-    @test MCMCChains.diag_all(rand(50, 2), :weiss, 1, 1, 1) != nothing
-    @test MCMCChains.diag_all(rand(50, 2), :hangartner, 1, 1, 1) != nothing
-    @test MCMCChains.diag_all(rand(50, 2), :billingsley, 1, 1, 1) != nothing
-
     @test eltype(discretediag(chn_disc[:,2:2,:])) <: ChainDataFrame
 
     gelman = gelmandiag(tchain)

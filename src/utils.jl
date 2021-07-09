@@ -56,19 +56,6 @@ function cummean(x::AbstractVector)
     return y
 end
 
-## Csorgo S and Faraway JJ. The exact and asymptotic distributions of the
-## Cramer-von Mises statistic. Journal of the Royal Statistical Society,
-## Series B, 58: 221-234, 1996.
-function pcramer(q::Real)
-    p = 0.0
-    for k in 0:3
-        c1 = 4.0 * k + 1.0
-        c2 = c1^2 / (16.0 * q)
-        p += gamma(k + 0.5) / factorial(k) * sqrt(c1) * exp(-c2) * besselk(0.25, c2)
-    end
-    return p / (pi^1.5 * sqrt(q))
-end
-
 function _dict2namedtuple(d::Dict)
     t_keys = ntuple(x -> Symbol(collect(keys(d))[x]), length(keys(d)))
     t_vals = ntuple(x -> collect(values(d))[x], length(values(d)))
@@ -96,7 +83,7 @@ function merge_union(a::NamedTuple{an}, b::NamedTuple{bn}) where {an,bn}
                 :(getfield(b, $(QuoteNode(n))))
             end
         end
-        
+
         return :(NamedTuple{$names,$types}(($(values...),)))
     else
         names = Base.merge_names(an, bn)
@@ -113,7 +100,7 @@ function merge_union(a::NamedTuple{an}, b::NamedTuple{bn}) where {an,bn}
                 getfield(b, n)
             end
         end
-        
+
         return NamedTuple{names,types}(values)
     end
 end
