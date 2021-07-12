@@ -15,6 +15,12 @@ val = hcat(val, rand(1:2, niter, 1, nchains))
 
 # construct a Chains object
 chn = Chains(val, start = 1, thin = 2)
+@test_throws ErrorException Chains(val; start=0, thin=2)
+@test_throws ErrorException Chains(val; start=niter, thin=-1)
+@test_throws ErrorException Chains(val; iterations=1:(niter - 1))
+@test_throws ErrorException Chains(val; iterations=range(0; step=2, length=niter))
+@test_throws ErrorException Chains(val; iterations=niter:-1:1)
+@test_throws ErrorException Chains(val; iterations=ones(Int, niter))
 
 # Chains object for discretediag
 val_disc = rand(Int16, 200, nparams, nchains)
@@ -29,18 +35,26 @@ chn_disc = Chains(val_disc, start = 1, thin = 2)
     @test keys(chn) == names(chn) == [:param_1, :param_2, :param_3, :param_4]
 
     @test range(chn) == range(1; step = 2, length = niter)
+    @test range(chn) == range(Chains(val; iterations=range(chn)))
+    @test range(chn) == range(Chains(val; iterations=collect(range(chn))))
 
     @test_throws ErrorException setrange(chn, 1:10)
+    @test_throws ErrorException setrange(chn, 0:(niter - 1))
+    @test_throws ErrorException setrange(chn, niter:-1:1)
+    @test_throws ErrorException setrange(chn, ones(Int, niter))
     @test_throws MethodError setrange(chn, float.(range(chn)))
 
-    chn2 = setrange(chn, range(1; step = 10, length = niter))
-    @test range(chn2) == range(1; step = 10, length = niter)
-    @test names(chn2) === names(chn)
-    @test chains(chn2) === chains(chn)
-    @test chn2.value.data === chn.value.data
-    @test chn2.logevidence === chn.logevidence
-    @test chn2.name_map === chn.name_map
-    @test chn2.info == chn.info
+    chn2a = setrange(chn, range(1; step = 10, length = niter))
+    chn2b = setrange(chn, collect(range(1; step = 10, length = niter)))
+    for chn2 in (chn2a, chn2b)
+        @test range(chn2) == range(1; step = 10, length = niter)
+        @test names(chn2) === names(chn)
+        @test chains(chn2) === chains(chn)
+        @test chn2.value.data === chn.value.data
+        @test chn2.logevidence === chn.logevidence
+        @test chn2.name_map === chn.name_map
+        @test chn2.info == chn.info
+    end
 
     chn3 = resetrange(chn)
     @test range(chn3) == 1:niter

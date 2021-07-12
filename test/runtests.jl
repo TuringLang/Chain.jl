@@ -22,7 +22,7 @@ Random.seed!(0)
     if VERSION >= v"1.3" && Sys.WORD_SIZE == 64
         # run tests related to rstar statistic
         println("Rstar")
-        Pkg.add("MLJModels")
+        Pkg.add("MLJBase")
         Pkg.add("MLJXGBoostInterface")
         @time include("rstar_tests.jl")
 
