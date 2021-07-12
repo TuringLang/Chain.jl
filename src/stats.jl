@@ -166,18 +166,17 @@ function describe(
     etype = :bm,
     kwargs...
 )
-    dfs = vcat(summarystats(chains; etype = etype, kwargs...),
-               quantile(chains; q = q, kwargs...))
-    return dfs
-end
+    print(io, "Chains ", chains, ":\n\n", header(chains))
 
-function Base.show(io::IO, mime::MIME"text/plain", cs::Vector{ChainDataFrame})
+    summstats = summarystats(chains; etype = etype, kwargs...)
+    quantiles = quantile(chains; q = q, kwargs...)
 
-    # Show summary stats.
-    for c in cs
-        println(io)
-        show(io, mime, c)
-    end
+    # Show summary stats
+    println(io)
+    show(io, MIME("text/plain"), summstats)
+    println(io)
+    show(io, MIME("text/plain"), quantiles)
+
 end
 
 function _hpd(x::AbstractVector{<:Real}; alpha::Real=0.05)
