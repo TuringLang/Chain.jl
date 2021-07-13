@@ -4,12 +4,14 @@
 @shorthands pooleddensity
 @shorthands traceplot
 @shorthands corner
+@shorthands violinplot
 
 struct _TracePlot; c; val; end
 struct _MeanPlot; c; val;  end
 struct _DensityPlot; c; val;  end
 struct _HistogramPlot; c; val;  end
 struct _AutocorPlot; lags; val;  end
+struct _ViolinPlot; par; val; end
 
 # define alias functions for old syntax
 const translationdict = Dict(
@@ -18,7 +20,8 @@ const translationdict = Dict(
                         :density => _DensityPlot,
                         :histogram => _HistogramPlot,
                         :autocorplot => _AutocorPlot,
-                        :pooleddensity => _DensityPlot
+                        :pooleddensity => _DensityPlot,
+                        :violinplot => _ViolinPlot
                       )
 
 const supportedplots = push!(collect(keys(translationdict)), :mixeddensity, :corner)
@@ -30,7 +33,9 @@ const supportedplots = push!(collect(keys(translationdict)), :mixeddensity, :cor
     colordim = :chain,
     barbounds = (-Inf, Inf),
     maxlag = nothing,
-    append_chains = false
+    append_chains = false,
+    sections = chains.name_map[:parameters],
+    combined = true
 )
     st = get(plotattributes, :seriestype, :traceplot)
     c = append_chains || st == :pooleddensity ? pool_chain(chains) : chains
@@ -64,6 +69,39 @@ const supportedplots = push!(collect(keys(translationdict)), :mixeddensity, :cor
         ac_mat = convert(Array, ac)
         val = colordim == :parameter ? ac_mat[:, :, i]' : ac_mat[i, :, :]
         _AutocorPlot(lags, val)
+    elseif st ∈ supportedplots
+        translationdict[st](c, val)
+    else
+        range(c), val
+    end
+
+    total_chains = i
+    if st == :violinplot
+        n_iter, n_par, n_chains = size(chains)
+        if combined
+            colordim := :chain
+            par = string.(reshape(repeat(sections, inner = n_iter), n_iter, n_par))[:,i]
+            val = Array(chains)[:,i]
+            _ViolinPlot(par, val)
+        elseif combined == false
+            if colordim == :chain
+                par_names = ["$(sections[i]).Chain $j" for i in 1:n_par, j in 1:n_chains]
+                pars = string.(reshape(repeat(vec(par_names), inner = n_iter), (n_iter, n_par, n_chains)))
+                val = chains.value[:,i,:]
+                par = pars[:,i,:]
+            elseif colordim == :parameter
+                par_vec = repeat(sections, inner = n_iter)
+                pars = string.(reshape(repeat(par_vec, n_chains, 1), (n_iter, n_par, n_chains)))
+                val = chains.value[:,:,i]
+                par = pars[:,:,i]
+                label --> string.(names(c))
+            else
+                throw(ArgumentError("`colordim` must be one of `:chain` or `:parameter`"))
+            end
+            _ViolinPlot(par, val)
+        else
+            throw(ArgumentError("In `ViolinPlots` `Chains` can be combined or separated "))
+        end
     elseif st ∈ supportedplots
         translationdict[st](c, val)
     else
@@ -183,4 +221,19 @@ end
     size --> (600, 600)
     ar = collect(Array(corner.c.value[:, corner.parameters,i]) for i in chains(corner.c))
     RecipesBase.recipetype(:cornerplot, vcat(ar...))
+end
+
+@recipe function f(p::_ViolinPlot)
+    @series begin
+        seriestype := :violin
+        p.par, p.val
+    end
+
+    @series begin
+        seriestype := :boxplot
+        bar_width --> 0.1
+        linewidth --> 2
+        fillalpha --> 0.8
+        p.par, p.val
+    end
 end
