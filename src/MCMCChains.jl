@@ -1,5 +1,6 @@
 module MCMCChains
 
+using Base: cumulative_compile_time_ns_after
 using AxisArrays
 const axes = Base.axes
 using AbstractFFTs
@@ -12,7 +13,7 @@ using SpecialFunctions
 using Formatting
 using Dates
 import StatsBase: autocov, counts, sem, AbstractWeights,
-    autocor, describe, quantile, sample, summarystats, cov
+    autocor, describe, quantile, sample, summarystats, cov, ecdf
 import MLJModelInterface
 import NaturalSort
 import PrettyTables

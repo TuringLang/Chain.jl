@@ -191,9 +191,10 @@ end
 @recipe function f(
     yobs_data,
     ypred_data::Chains,
-    check_type = :posterior,
     n_samples::Int = 50;
-    yvar_name::AbstractVector{<:String}
+    yvar_name::AbstractVector{<:Symbol},
+    plot_type = :density,
+    predictive_check = :posterior,
     )
 
     st = get(plotattributes, :seriestype, :traceplot)
@@ -201,45 +202,48 @@ end
     if st == :ppcplot
         N = n_samples <= size(ypred_data)[1] ? n_samples : size(ypred_data)[1]
         index = sample(1:size(ypred_data)[1], N, replace = false, ordered = true)
-        if check_type == :posterior
+        if predictive_check == :posterior
             title --> "Posterior predictive check"
-        elseif check_type == :prior
+        elseif predictive_check == :prior
             title --> "Prior predictive check"
         else
-            throw(ArgumentError("`check_type` must be one of `prior` or `posterior`"))
+            throw(ArgumentError("`predictive_check` must be one of `prior` or `posterior`"))
         end
 
         if ndims(yobs_data) == 1
-            #y_obs = yobs_data
-            n_yvar = 1
-            n_yval = size(yobs_data)[1] #y values per sample
+            #n_yvar = 1
+            #n_yval = size(yobs_data)[1] #y values per sample
+            y_obs = plot_type == :density ? vec(yobs_data) : ecdf(vec(yobs_data))
             predictions = ypred_data.value.data[index,:,:]
-            ymean_pred = vec(mean(ypred_data.value.data, dims = 1))
+            ymean_pred = plot_type == :density ? vec(MCMCChains.mean(ypred_data.value.data, dims = 1)) : ecdf(vec(MCMCChains.mean(ypred_data.value.data, dims = 1)))
+            #if plot_type == :density
+            for i in 1:N
+                y_pred = plot_type == :density ? predictions[i,:,:] : ecdf(vec(predictions[i,:,:]))
+                @series begin
+                    seriestype := :density
+                    seriesalpha --> 0.2
+                    linecolor --> "#BBBBBB"
+                    label --> nothing
+                    y_pred
+                end
+            end
             @series begin
                 seriestype := :density
                 label --> "Y obs"
-                y_obs = yobs_data
+                y_obs
             end
             @series begin
                 seriestype := :density
                 label --> "Y mean"
                 ymean_pred
             end
-            for i in 1:N
-                @series begin
-                    seriestype := :density
-                    seriesalpha --> 0.2
-                    linecolor --> "#BBBBBB"
-                    label --> nothing
-                    y_pred = predictions[i,:,:]
-                end
-            end
-        elseif ndims(yobs_data) >= 1 ## ordered by columns
+
+        elseif ndims(yobs_data) > 1 ## ordered by columns
             n_yval = size(yobs_data)[1]
             n_yvar = size(yobs_data)[2] ## number of dependent variables
             #n_iter = size(ypred_data)[1]
-            y_obs = yobs_data ## observed data for y
-            ymean_pred = reshape(mean(ypred_data.value.data, dims = 1), (n_yvar, n_yval))
+            #y_obs = yobs_data ## observed data for y
+            mean = reshape(MCMCChains.mean(ypred_data.value.data, dims = 1), (n_yvar, n_yval))
             #predictions = reshape(ypred_data.value.data, (n_iter,n_yval,n_yvar))[index,:,:]
             #sections = [MCMCChains.group(ypred_data, Symbol(yvar_name[i])).value.data[index,:,:]
             #            for i in 1:n_yvar]
@@ -248,31 +252,35 @@ end
             for j in 1:n_yvar
                 sections = MCMCChains.group(ypred_data, Symbol(yvar_name[j]))
                 predictions = sections.value.data[index,:,:]
+                y_obs = plot_type == :density ? yobs_data[:,j] : ecdf(vec(yobs_data[:,j]))
+                ymean_pred = plot_type == :density ? mean[j,:] : ecdf(vec(mean[j,:]))
                 #sections = dropdims(group(ypred_data, yvar_name[j]).value.data, dims = 3)
                 #predictions = reshape(ypred_data.value.data, (n_iter,n_yval,n_yvar))[index,:,:]
                 k += 1
-                @series begin
-                    subplot := k
-                    seriestype := :density
-                    label --> "Yobs"
-                    y_obs[:,j]
-                end
-                @series begin
-                    subplot := k
-                    seriestype := :density
-                    label --> "Ymean"
-                    ymean_pred[j,:]
-                end
                 for i in 1:N
-                    #y_pred = sections[j][i,:,:]
+                    y_pred = plot_type == :density ? predictions[i,:,:] : ecdf(vec(predictions[i,:,:]))
                     @series begin
                         subplot := k
                         seriestype := :density
                         seriesalpha --> 0.2
                         linecolor --> "#BBBBBB"
                         label --> nothing
-                        y_pred = predictions[i,:,:]
+                        y_pred
                     end
+                end
+                @series begin
+                    subplot := k
+                    seriestype := :density
+                    label --> "Y obs"
+                    #y_obs[:,j]
+                    y_obs
+                end
+                @series begin
+                    subplot := k
+                    seriestype := :density
+                    label --> "Y mean"
+                    #ymean_pred[j,:]
+                    ymean_pred
                 end
             end
         else
